@@ -12,7 +12,7 @@ init(autoreset=True)
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from config import EXPENSES_FILE, CONFIG_FILE, DEFAULT_CATEGORIES, REPORTS_DIR
+from config import EXPENSES_FILE, CONFIG_FILE, DEFAULT_CATEGORIES, REPORTES_DIR
 from datos.almacenamiento import cargar_gastos, exportar_txt, cargar_configuracion, guardar_configuracion
 from utilidades.validadores import validar_monto, validar_categoria, validar_fecha
 from utilidades.formateadores import formato_moneda, formato_fecha_display
@@ -274,7 +274,7 @@ def ejecutar_opcion(opcion: str):
             print(reporte)
             generar_grafico(resumen)
         elif opcion == "6":
-            ruta = os.path.join(REPORTS_DIR, f"gastos_{mes_visual}.txt")
+            ruta = os.path.join(REPORTES_DIR, f"gastos_{mes_visual}.txt")
             if exportar_txt(ruta, reporte):
                 print(f"{Fore.GREEN}✅ Exportado a: {ruta}")
         else:
