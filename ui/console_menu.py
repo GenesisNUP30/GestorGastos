@@ -1,21 +1,23 @@
 """
 console_menu.py
-Interfaz principal CRUD. Menú reordenado, tabla en ventana interactiva y flujo validado.
+Interfaz principal CRUD. Menú reordenado, selección de mes/año y presupuestos persistentes.
 """
 import sys
 import os
+import re
+from datetime import datetime
 from colorama import init, Fore, Style
 init(autoreset=True)
 
 # Ruta raíz del proyecto para imports seguros
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from config import EXPENSES_FILE, DEFAULT_CATEGORIES, REPORTS_DIR
-from data.storage import cargar_gastos, exportar_txt
+from config import EXPENSES_FILE, CONFIG_FILE, DEFAULT_CATEGORIES, REPORTS_DIR
+from data.storage import cargar_gastos, exportar_txt, cargar_configuracion, guardar_configuracion
 from utils.validators import validar_monto, validar_categoria, validar_fecha
 from core.expense_manager import (
     agregar_gasto, editar_gasto, eliminar_gasto,
-    resumen_por_categoria, filtrar_por_periodo, generar_reporte
+    resumen_por_categoria, filtrar_por_mes, generar_reporte
 )
 from ui.visualizer import generar_grafico
 from ui.tabla_window import mostrar_ventana_tabla
@@ -25,7 +27,7 @@ def limpiar_pantalla():
 
 def mostrar_menu():
     print(f"\n{Fore.CYAN}╔{'═'*50}╗")
-    print(f"{Fore.CYAN}║ {Fore.YELLOW}💶 GESTOR DE GASTOS ESTUDIANTIL (CRUD) 💶{Fore.CYAN}{' '*(10)}║")
+    print(f"{Fore.CYAN}║ {Fore.YELLOW}💶 GESTOR DE GASTOS ESTUDIANTIL 💶{Fore.CYAN}{' '*(10)}║")
     print(f"{Fore.CYAN}╠{'═'*50}╣")
     print(f"{Fore.WHITE}║  1. 📋 Ver lista completa               {Fore.CYAN}║")
     print(f"{Fore.WHITE}║  2. ➕ Registrar nuevo gasto            {Fore.CYAN}║")
@@ -33,9 +35,41 @@ def mostrar_menu():
     print(f"{Fore.WHITE}║  4. 🗑️ Eliminar gasto                  {Fore.CYAN}║")
     print(f"{Fore.WHITE}║  5. 📊 Resumen + Gráfico visual         {Fore.CYAN}║")
     print(f"{Fore.WHITE}║  6. 💾 Exportar resumen a TXT           {Fore.CYAN}║")
-    print(f"{Fore.WHITE}║  7. 📅 Filtrar por periodo              {Fore.CYAN}║")
+    print(f"{Fore.WHITE}║  7. 📅 Filtrar por mes/año          {Fore.CYAN}║")
     print(f"{Fore.WHITE}║  8. 🚪 Salir                            {Fore.CYAN}║")
     print(f"{Fore.CYAN}╚{'═'*50}╝")
+
+def solicitar_mes() -> str:
+    hoy = datetime.now().strftime("%Y-%m")
+    mes = input(f"{Fore.WHITE}📅 Mes/Año (YYYY-MM) o [Enter] para {hoy}: {Fore.RESET}").strip()
+    if not mes: return hoy
+    if not re.match(r"^\d{4}-\d{2}$", mes):
+        print(f"{Fore.RED}⚠️ Formato inválido. Usa YYYY-MM (ej: 2024-10).{Style.RESET_ALL}")
+        return solicitar_mes()
+    return mes
+
+def gestionar_presupuesto(mes: str) -> float:
+    config = cargar_configuracion(CONFIG_FILE)
+    presupuestos = config.get("presupuestos", {})
+    actual = presupuestos.get(mes)
+    
+    if actual is not None:
+        print(f"{Fore.CYAN}📌 Presupuesto ya configurado para {mes}: {actual:.2f}€{Style.RESET_ALL}")
+        cambiar = input(f"{Fore.WHITE}¿Deseas modificarlo? (s/n): {Fore.RESET}").strip().lower()
+        if cambiar != "s": return float(actual)
+    
+    while True:
+        val = input(f"{Fore.WHITE}💰 Introduce presupuesto para {mes}: {Fore.RESET}").strip()
+        try:
+            presupuesto = float(val.replace(",", "."))
+            if presupuesto <= 0: raise ValueError
+            presupuestos[mes] = presupuesto
+            config["presupuestos"] = presupuestos
+            guardar_configuracion(CONFIG_FILE, config)
+            print(f"{Fore.GREEN}✅ Presupuesto guardado para {mes}.{Style.RESET_ALL}")
+            return presupuesto
+        except ValueError:
+            print(f"{Fore.RED}❌ Debe ser un número mayor a 0.{Style.RESET_ALL}")
 
 def solicitar_id_valido(gastos: list) -> int:
     while True:
@@ -47,12 +81,11 @@ def solicitar_id_valido(gastos: list) -> int:
         except ValueError:
             print(f"{Fore.RED}❌ Debe ser un número entero.{Style.RESET_ALL}")
 
-def ejecutar_opcion(opcion: str, presupuesto_mensual: float = None):
-    gastos = cargar_gastos(EXPENSES_FILE)
-    
+def ejecutar_opcion(opcion: str):
     if opcion == "1":
+        gastos = cargar_gastos(EXPENSES_FILE)
         mostrar_ventana_tabla(gastos)
-        input(f"\n{Fore.YELLOW}Presiona Enter cuando cierres la ventana para volver al menú...")
+        input(f"\n{Fore.YELLOW}Cierra la ventana y presiona Enter...")
 
     elif opcion == "2":
         while True:
@@ -66,9 +99,7 @@ def ejecutar_opcion(opcion: str, presupuesto_mensual: float = None):
         desc = input("📝 Descripción (Enter=ninguna): ").strip() or "Sin descripción"
         while True:
             fecha_input = input("📅 Fecha (YYYY-MM-DD, Enter=hoy): ").strip()
-            if not fecha_input:
-                from datetime import datetime
-                fecha_input = datetime.now().strftime("%Y-%m-%d")
+            if not fecha_input: fecha_input = datetime.now().strftime("%Y-%m-%d")
             fecha, err = validar_fecha(fecha_input)
             if err: print(f"{Fore.RED}❌ {err}")
             else: break
@@ -77,6 +108,7 @@ def ejecutar_opcion(opcion: str, presupuesto_mensual: float = None):
         input(f"{Fore.YELLOW}Presiona Enter para continuar...")
 
     elif opcion == "3":
+        gastos = cargar_gastos(EXPENSES_FILE)
         if not gastos:
             print(f"{Fore.YELLOW}📭 No hay gastos para editar.{Style.RESET_ALL}")
             input(f"{Fore.YELLOW}Presiona Enter..."); return
@@ -114,6 +146,7 @@ def ejecutar_opcion(opcion: str, presupuesto_mensual: float = None):
         input(f"{Fore.YELLOW}Presiona Enter...")
 
     elif opcion == "4":
+        gastos = cargar_gastos(EXPENSES_FILE)
         if not gastos:
             print(f"{Fore.YELLOW}📭 No hay gastos para eliminar.{Style.RESET_ALL}")
             input(f"{Fore.YELLOW}Presiona Enter..."); return
@@ -130,34 +163,25 @@ def ejecutar_opcion(opcion: str, presupuesto_mensual: float = None):
             print(f"{Fore.CYAN}✅ Operación cancelada.{Style.RESET_ALL}")
         input(f"\n{Fore.YELLOW}Presiona Enter...")
 
-    elif opcion == "5":
-        periodo = input("📅 Periodo: semanal (s) / mensual (m) [m]: ").strip().lower() or "m"
-        gastos_f = filtrar_por_periodo(gastos, "semanal" if periodo=="s" else "mensual")
-        resumen = resumen_por_categoria(gastos_f)
+    elif opcion in ("5", "6", "7"):
+        mes = solicitar_mes()
+        presupuesto = gestionar_presupuesto(mes)
+        gastos_mes = filtrar_por_mes(cargar_gastos(EXPENSES_FILE), mes)
+        resumen = resumen_por_categoria(gastos_mes)
         total = sum(resumen.values())
-        limpiar_pantalla()
-        print(generar_reporte(resumen, total, presupuesto_mensual))
-        generar_grafico(resumen)
-        input(f"\n{Fore.YELLOW}Presiona Enter cuando cierres el gráfico...")
-
-    elif opcion == "6":
-        periodo = input("📅 Exportar: semanal (s) / mensual (m) [m]: ").strip().lower() or "m"
-        gastos_f = filtrar_por_periodo(gastos, "semanal" if periodo=="s" else "mensual")
-        resumen = resumen_por_categoria(gastos_f)
-        total = sum(resumen.values())
-        txt = generar_reporte(resumen, total, presupuesto_mensual)
-        tipo = "semanal" if periodo=="s" else "mensual"
-        ruta = os.path.join(REPORTS_DIR, f"gastos_{tipo}.txt")
-        if exportar_txt(ruta, txt):
-            print(f"{Fore.GREEN}✅ Exportado a: {ruta}")
+        reporte = generar_reporte(resumen, total, mes, presupuesto)
+        
+        if opcion == "5":
+            limpiar_pantalla()
+            print(reporte)
+            generar_grafico(resumen)
+        elif opcion == "6":
+            ruta = os.path.join(REPORTS_DIR, f"gastos_{mes}.txt")
+            if exportar_txt(ruta, reporte): print(f"{Fore.GREEN}✅ Exportado a: {ruta}")
+        else:
+            print(f"\n{Fore.WHITE}📋 Gastos registrados en {mes}:")
+            mostrar_ventana_tabla(gastos_mes)
         input(f"\n{Fore.YELLOW}Presiona Enter...")
-
-    elif opcion == "7":
-        periodo = input("📅 Ver: semanal (s) / mensual (m) [s]: ").strip().lower() or "s"
-        gastos_f = filtrar_por_periodo(gastos, "semanal" if periodo=="s" else "mensual")
-        print(f"\n{Fore.WHITE}📋 Gastos del periodo seleccionado:")
-        mostrar_ventana_tabla(gastos_f)
-        input(f"\n{Fore.YELLOW}Presiona Enter cuando cierres la ventana...")
 
     elif opcion == "8":
         print(f"{Fore.CYAN}👋 ¡Hasta la próxima! Gestiona tu economía con inteligencia.")
