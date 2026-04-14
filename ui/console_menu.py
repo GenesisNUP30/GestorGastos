@@ -20,7 +20,7 @@ from core.expense_manager import (
     resumen_por_categoria, filtrar_por_mes, generar_reporte
 )
 from ui.visualizer import generar_grafico
-from ui.table_window import mostrar_ventana_tabla
+from ui.tabla_window import mostrar_ventana_tabla
 
 def limpiar_pantalla(): os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -129,7 +129,9 @@ def ejecutar_opcion(opcion: str):
 
     elif opcion == "3":
         gastos = cargar_gastos(EXPENSES_FILE)
-        if not gastos: print(f"{Fore.YELLOW}📭 No hay gastos.{Style.RESET_ALL}"); input(); return
+        if not gastos: 
+            print(f"{Fore.YELLOW}📭 No hay gastos.{Style.RESET_ALL}")
+            input(f"{Fore.YELLOW}Presiona Enter..."); return
         mostrar_ventana_tabla(gastos)
         id_gasto = solicitar_id_valido(gastos)
         print(f"{Fore.WHITE}1. 💰 Monto | 2. 📂 Categoría | 3. 📝 Descripción | 4. 📅 Fecha")
@@ -140,11 +142,20 @@ def ejecutar_opcion(opcion: str):
             print(f"{Fore.RED}⚠️ Opción inválida.{Style.RESET_ALL}")
         campo = campo_map[op]
         if campo == "monto":
-            while True: val, err = validar_monto(input("💰 Nuevo monto: ").strip()); break if not err else print(err)
+            while True: 
+                val, err = validar_monto(input("💰 Nuevo monto: ").strip())
+                if err: print(f"{Fore.RED}❌ {err}")
+                else: break
         elif campo == "categoria":
-            while True: val, err = validar_categoria(input("📂 Nueva categoría: ").strip(), DEFAULT_CATEGORIES); break if not err else print(err)
+            while True: 
+                val, err = validar_categoria(input("📂 Nueva categoría: ").strip(), DEFAULT_CATEGORIES)
+                if err: print(f"{Fore.RED}❌ {err}")
+                else: break
         elif campo == "fecha":
-            while True: val, err = validar_fecha(input("📅 Nueva fecha (YYYY-MM-DD): ").strip()); break if not err else print(err)
+            while True: 
+                val, err = validar_fecha(input("📅 Nueva fecha (YYYY-MM-DD): ").strip())
+                if err: print(f"{Fore.RED}❌ {err}")
+                else: break
         else: val = input("📝 Nueva descripción: ").strip()
         ok, msg = editar_gasto(EXPENSES_FILE, id_gasto, campo, val)
         print(f"{Fore.GREEN if ok else Fore.RED}{msg}{Style.RESET_ALL}")
