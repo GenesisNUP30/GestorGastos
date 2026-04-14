@@ -7,13 +7,6 @@
     "fecha": "2026-04-14"
   },
   {
-    "id": 2,
-    "monto": 40.5,
-    "categoria": "comida",
-    "descripcion": "Sin descripción",
-    "fecha": "2026-04-13"
-  },
-  {
     "id": 3,
     "monto": 30.89,
     "categoria": "comida",
@@ -54,5 +47,12 @@
     "categoria": "otros",
     "descripcion": "vacunas perro",
     "fecha": "2026-04-06"
+  },
+  {
+    "id": 9,
+    "monto": 3.5,
+    "categoria": "comida",
+    "descripcion": "desayuno practicas",
+    "fecha": "2026-04-14"
   }
 ]
