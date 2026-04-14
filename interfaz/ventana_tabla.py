@@ -1,5 +1,5 @@
 """
-table_window.py
+ventana_tabla.py
 Abre una ventana interactiva con Tkinter para visualizar gastos + estado financiero en tiempo real.
 """
 import tkinter as tk

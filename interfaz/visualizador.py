@@ -1,5 +1,5 @@
 """
-visualizer.py
+visualizador.py
 Generación de gráficos interactivos con Matplotlib. Muestra el gráfico en pantalla inmediatamente.
 """
 import matplotlib.pyplot as plt

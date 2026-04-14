@@ -1,5 +1,5 @@
 """
-storage.py
+almacenamiento.py
 Gestión de persistencia en JSON. Maneja carga, guardado y exportación de datos.
 """
 import json

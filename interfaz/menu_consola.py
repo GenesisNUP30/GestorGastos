@@ -1,5 +1,5 @@
 """
-console_menu.py
+menu_consola.py
 Interfaz CRUD. Menú reordenado, alertas de presupuesto en tiempo real y opción para modificarlo.
 """
 import sys
@@ -13,15 +13,15 @@ init(autoreset=True)
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from config import EXPENSES_FILE, CONFIG_FILE, DEFAULT_CATEGORIES, REPORTS_DIR
-from data.storage import cargar_gastos, exportar_txt, cargar_configuracion, guardar_configuracion
-from utils.validators import validar_monto, validar_categoria, validar_fecha
-from utils.formatters import formato_moneda
-from core.expense_manager import (
+from datos.almacenamiento import cargar_gastos, exportar_txt, cargar_configuracion, guardar_configuracion
+from utilidades.validadores import validar_monto, validar_categoria, validar_fecha
+from utilidades.formateadores import formato_moneda
+from nucleo.gestor_gastos import (
     agregar_gasto, editar_gasto, eliminar_gasto,
     resumen_por_categoria, filtrar_por_mes, generar_reporte
 )
-from ui.visualizer import generar_grafico
-from ui.tabla_window import mostrar_ventana_tabla
+from interfaz.visualizador import generar_grafico
+from interfaz.ventana_tabla import mostrar_ventana_tabla
 
 
 def limpiar_pantalla():

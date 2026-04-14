@@ -1,5 +1,5 @@
 """
-main.py
+principal.py
 Punto de entrada del proyecto. Configura el presupuesto del mes actual y lanza el menú.
 Manejo robusto de interrupciones y alineado con el sistema de presupuestos por mes.
 """
@@ -14,8 +14,8 @@ init(autoreset=True)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from config import CONFIG_FILE
-from data.storage import cargar_configuracion, guardar_configuracion
-from ui.console_menu import mostrar_menu, ejecutar_opcion, limpiar_pantalla
+from datos.almacenamiento import cargar_configuracion, guardar_configuracion
+from interfaz.menu_consola import mostrar_menu, ejecutar_opcion, limpiar_pantalla
 
 
 def main():

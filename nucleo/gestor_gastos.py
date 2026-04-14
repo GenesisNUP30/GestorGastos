@@ -1,11 +1,11 @@
 """
-core/expense_manager.py
+gestor_gastos.py
 Lógica de negocio: CRUD completo, cálculo de resúmenes, filtrado temporal y reportes.
 """
 import os
 from datetime import datetime
-from utils.formatters import formato_moneda
-from data.storage import cargar_gastos, guardar_gastos
+from utilidades.formateadores import formato_moneda
+from datos.almacenamiento import cargar_gastos, guardar_gastos
 
 def agregar_gasto(ruta_archivo: str, monto: float, categoria: str, descripcion: str, fecha: str) -> tuple:
     gastos = cargar_gastos(ruta_archivo)

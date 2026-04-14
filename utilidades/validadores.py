@@ -1,5 +1,5 @@
 """
-validators.py
+validadores.py
 Funciones para validar entradas del usuario y evitar errores en tiempo de ejecución.
 """
 import re

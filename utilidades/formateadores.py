@@ -1,5 +1,5 @@
 """
-formatters.py
+formateadores.py
 Utilidades para formatear monedas, fechas y textos de salida.
 """
 def formato_moneda(valor: float) -> str:
