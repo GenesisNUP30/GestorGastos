@@ -9,6 +9,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data_store")
 REPORTS_DIR = os.path.join(BASE_DIR, "reportes")
 EXPENSES_FILE = os.path.join(DATA_DIR, "gastos.json")
+CONFIG_FILE = os.path.join(DATA_DIR, "config.json")
 
 # Categorías predefinidas
 DEFAULT_CATEGORIES = ["comida", "transporte", "ocio", "estudio", "salud", "otros"]

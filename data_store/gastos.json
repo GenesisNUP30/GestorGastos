@@ -11,7 +11,7 @@
     "monto": 40.5,
     "categoria": "comida",
     "descripcion": "Sin descripción",
-    "fecha": "2026-04-10"
+    "fecha": "2026-04-13"
   },
   {
     "id": 3,
@@ -40,5 +40,12 @@
     "categoria": "ocio",
     "descripcion": "cine holea",
     "fecha": "2026-04-07"
+  },
+  {
+    "id": 7,
+    "monto": 13.25,
+    "categoria": "salud",
+    "descripcion": "frenadol resfriado",
+    "fecha": "2026-04-12"
   }
 ]

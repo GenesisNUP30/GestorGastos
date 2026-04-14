@@ -34,3 +34,17 @@ def exportar_txt(ruta: str, contenido: str) -> bool:
     except IOError as e:
         print(f"❌ Error al exportar: {e}")
         return False
+
+def cargar_configuracion(ruta: str) -> dict:
+    if not os.path.exists(ruta): return {}
+    try:
+        with open(ruta, "r", encoding="utf-8") as f: return json.load(f)
+    except (json.JSONDecodeError, IOError): return {}
+
+def guardar_configuracion(ruta: str, config: dict) -> bool:
+    try:
+        os.makedirs(os.path.dirname(ruta), exist_ok=True)
+        with open(ruta, "w", encoding="utf-8") as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
+        return True
+    except IOError: return False
