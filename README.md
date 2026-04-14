@@ -14,6 +14,7 @@ El proyecto utiliza **dos librerías externas instaladas mediante `pip`**, con u
 1. Abre una terminal o consola dentro de la carpeta raíz del proyecto.
 2. Asegúrate de tener Python 3.9 o superior instalado (`python --version`).
 3. Ejecuta el siguiente comando para instalar las librerías externas listadas en `librerias.txt`:
+
    ```bash
    pip install -r librerias.txt
    ```
