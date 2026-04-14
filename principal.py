@@ -21,15 +21,19 @@ from interfaz.menu_consola import mostrar_menu, ejecutar_opcion, limpiar_pantall
 def main():
     limpiar_pantalla()
     print(f"{Fore.CYAN}🚀 Iniciando Gestor de Gastos Estudiantil v2.2...{Style.RESET_ALL}")
+    
+    # Formato interno para lógica y almacenamiento (YYYY-MM)
+    mes_actual_iso = datetime.now().strftime("%Y-%m")
+    # Formato visual para mensajes al usuario (MM/YYYY)
+    mes_actual_visual = datetime.now().strftime("%m/%Y")
 
     # Configuración inicial del presupuesto para el mes actual
-    mes_actual = datetime.now().strftime("%Y-%m")
     config = cargar_configuracion(CONFIG_FILE)
     presupuestos = config.get("presupuestos", {})
-    presupuesto_actual = presupuestos.get(mes_actual)
+    presupuesto_actual = presupuestos.get(mes_actual_iso)
 
     if presupuesto_actual is None:
-        print(f"{Fore.YELLOW}💡 Es la primera vez que usas {mes_actual}.{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}💡 Es la primera vez que registras gastos para {mes_actual_visual}.{Style.RESET_ALL}")
         while True:
             entrada = input(
                 f"{Fore.WHITE}💰 Introduce presupuesto para este mes (€) o [Enter] para ilimitado: {Style.RESET_ALL}"
@@ -42,15 +46,15 @@ def main():
                 presupuesto_actual = float(entrada.replace(",", "."))
                 if presupuesto_actual <= 0:
                     raise ValueError
-                presupuestos[mes_actual] = presupuesto_actual
+                presupuestos[mes_actual_iso] = presupuesto_actual
                 config["presupuestos"] = presupuestos
                 guardar_configuracion(CONFIG_FILE, config)
-                print(f"{Fore.GREEN}✅ Presupuesto de {presupuesto_actual:.2f}€ guardado para {mes_actual}.{Style.RESET_ALL}")
+                print(f"{Fore.GREEN}✅ Presupuesto de {presupuesto_actual:.2f}€ guardado para {mes_actual_visual}.{Style.RESET_ALL}")
                 break
             except ValueError:
                 print(f"{Fore.RED}❌ Introduce un número válido mayor a 0.{Style.RESET_ALL}")
     else:
-        print(f"{Fore.CYAN}📌 Presupuesto cargado para {mes_actual}: {presupuesto_actual:.2f}€{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}📌 Presupuesto cargado para {mes_actual_visual}: {presupuesto_actual:.2f}€{Style.RESET_ALL}")
 
     print(f"{Fore.YELLOW}💡 Tip: Usa las opciones 5, 6 o 7 para ver resúmenes y gráficos por mes.{Fore.RESET}\n")
 
