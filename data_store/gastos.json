@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "monto": 60.58,
+    "categoria": "transporte",
+    "descripcion": "gasolina",
+    "fecha": "2026-04-14"
+  },
+  {
+    "id": 2,
+    "monto": 40.5,
+    "categoria": "comida",
+    "descripcion": "Sin descripción",
+    "fecha": "2026-04-10"
+  },
+  {
+    "id": 3,
+    "monto": 30.89,
+    "categoria": "comida",
+    "descripcion": "restaurante Loli",
+    "fecha": "2026-04-05"
+  },
+  {
+    "id": 4,
+    "monto": 200.5,
+    "categoria": "estudio",
+    "descripcion": "alquiler piso",
+    "fecha": "2026-04-01"
+  },
+  {
+    "id": 5,
+    "monto": 15.4,
+    "categoria": "comida",
+    "descripcion": "mercadona",
+    "fecha": "2026-04-09"
+  },
+  {
+    "id": 6,
+    "monto": 10.5,
+    "categoria": "ocio",
+    "descripcion": "cine holea",
+    "fecha": "2026-04-07"
+  }
+]
