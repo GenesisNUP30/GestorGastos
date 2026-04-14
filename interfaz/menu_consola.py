@@ -45,13 +45,19 @@ def mostrar_menu():
 
 
 def solicitar_mes() -> str:
-    hoy = datetime.now().strftime("%Y-%m")
-    mes = input(f"{Fore.WHITE}📅 Mes/Año (MM-YYYY) o [Enter] para {hoy}: {Fore.RESET}").strip()
+    """Pide MM-YYYY al usuario y devuelve YYYY-MM para lógica interna."""
+    mes_default_visual = datetime.now().strftime("%m-%Y")
+    mes_default_iso = datetime.now().strftime("%Y-%m")
+
+    mes = input(f"{Fore.WHITE}📅 Mes/Año (MM-YYYY) o [Enter] para {mes_default_visual}: {Fore.RESET}").strip()
     if not mes:
-        return hoy
-    if not re.match(r"^\d{4}-\d{2}$", mes):
+        return mes_default_iso
+
+    if not re.match(r"^\d{2}-\d{4}$", mes):
         print(f"{Fore.RED}⚠️ Formato inválido. Usa MM-YYYY (ej: 04-2024).{Style.RESET_ALL}")
         return solicitar_mes()
+
+    # Convierte MM-YYYY (usuario) -> YYYY-MM (interno)
     partes = mes.split("-")
     return f"{partes[1]}-{partes[0]}"
 
