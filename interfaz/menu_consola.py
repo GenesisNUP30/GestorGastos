@@ -190,7 +190,7 @@ def ejecutar_opcion(opcion: str):
         while True:
             fecha_input = input("📅 Fecha (DD-MM-YYYY, Enter=hoy): ").strip()
             if not fecha_input:
-                fecha_input = datetime.now().strftime("%Y-%m-%d")
+                fecha_input = datetime.now().strftime("%d-%m-%Y")
             fecha_iso, err = validar_fecha(fecha_input)
             if err:
                 print(f"{Fore.RED}❌ {err}")
