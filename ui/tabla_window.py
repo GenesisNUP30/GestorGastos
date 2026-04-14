@@ -1,16 +1,16 @@
 """
 table_window.py
-Abre una ventana interactiva con Tkinter para visualizar los gastos en formato tabla profesional.
+Abre una ventana interactiva con Tkinter para visualizar gastos + estado financiero en tiempo real.
 """
 import tkinter as tk
 from tkinter import ttk
 
-def mostrar_ventana_tabla(gastos: list):
+def mostrar_ventana_tabla(gastos: list, presupuesto: float = None, total_gastado: float = 0.0):
     """
     Genera y muestra una ventana con tabla de gastos.
     Bloquea la ejecución hasta que el usuario cierra la ventana.
     """
-    if not gastos:
+    if not gastos and presupuesto is None:
         print("⚠️ No hay registros para mostrar.")
         return
 
@@ -19,6 +19,16 @@ def mostrar_ventana_tabla(gastos: list):
     root.geometry("850x420")
     root.resizable(False, False)
     root.iconify()  # Parpadea en barra de tareas para llamar atención
+    
+    # 🟢 Frame de Estado Financiero (si hay presupuesto configurado)
+    if presupuesto is not None:
+        dif = presupuesto - total_gastado
+        status_txt = f"Presupuesto: {presupuesto:,.2f}€ | Gastado: {total_gastado:,.2f}€ | {'Restante' if dif>=0 else 'Déficit'}: {abs(dif):,.2f}€"
+        color = "green" if dif >= 0 else "red"
+        frame_status = ttk.Frame(root)
+        frame_status.pack(fill="x", padx=10, pady=5)
+        lbl_status = ttk.Label(frame_status, text=status_txt, font=("Segoe UI", 11, "bold"), foreground=color)
+        lbl_status.pack()
 
     frame = ttk.Frame(root, padding="10")
     frame.pack(fill=tk.BOTH, expand=True)
