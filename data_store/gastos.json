@@ -47,5 +47,12 @@
     "categoria": "salud",
     "descripcion": "frenadol resfriado",
     "fecha": "2026-04-12"
+  },
+  {
+    "id": 8,
+    "monto": 85.4,
+    "categoria": "otros",
+    "descripcion": "vacunas perro",
+    "fecha": "2026-04-06"
   }
 ]
