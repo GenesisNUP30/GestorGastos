@@ -3,7 +3,7 @@ core/expense_manager.py
 Lógica de negocio: CRUD completo, cálculo de resúmenes, filtrado temporal y reportes.
 """
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from utils.formatters import formato_moneda
 from data.storage import cargar_gastos, guardar_gastos
 
@@ -51,28 +51,27 @@ def eliminar_gasto(ruta_archivo: str, id_gasto: int) -> tuple:
         return True, f"🗑️ Gasto #{id_gasto} eliminado correctamente."
     return False, "❌ Error al eliminar el gasto."
 
+def filtrar_por_mes(gastos: list, mes_año: str = None) -> list:
+    if not mes_año:
+        mes_año = datetime.now().strftime("%Y-%m")
+    return [g for g in gastos if g["fecha"].startswith(mes_año)]
+
 def resumen_por_categoria(gastos: list) -> dict:
     resumen = {}
     for g in gastos:
         resumen[g["categoria"]] = resumen.get(g["categoria"], 0.0) + g["monto"]
     return resumen
 
-def filtrar_por_periodo(gastos: list, periodo: str) -> list:
-    hoy = datetime.now().date()
-    if periodo == "semanal":
-        inicio = hoy - timedelta(days=hoy.weekday())
-    else:
-        inicio = hoy.replace(day=1)
-    return [g for g in gastos if datetime.strptime(g["fecha"], "%Y-%m-%d").date() >= inicio]
-
-def generar_reporte(resumen: dict, total: float, presupuesto: float = None) -> str:
-    lineas = ["📊 RESUMEN VISUAL DE GASTOS", "="*45]
+def generar_reporte(resumen: dict, total: float, mes_año: str, presupuesto_mes: float = None) -> str:
+    lineas = [f"📊 RESUMEN DE GASTOS - {mes_año}", "="*45]
     for cat, monto in sorted(resumen.items(), key=lambda x: x[1], reverse=True):
         porcentaje = (monto / total * 100) if total > 0 else 0
         barra = "█" * int(porcentaje / 5) + "░" * (20 - int(porcentaje / 5))
-        estado = "🟢" if (presupuesto and monto <= presupuesto/len(resumen)) else "🟡"
+        estado = "🟢" if (presupuesto_mes and monto <= presupuesto_mes/len(resumen)) else "🟡"
         lineas.append(f"{estado} {cat.capitalize():<12} {barra} {formato_moneda(monto)} ({porcentaje:.1f}%)")
-    lineas.extend(["="*45, f"💰 TOTAL: {formato_moneda(total)}"])
-    if presupuesto:
-        lineas.append(f"📅 Restante mensual: {formato_moneda(presupuesto - total)}")
+    lineas.extend(["="*45, f"💰 TOTAL MES: {formato_moneda(total)}"])
+    if presupuesto_mes:
+        restante = presupuesto_mes - total
+        color = "🟢" if restante >= 0 else "🔴"
+        lineas.append(f"📅 Presupuesto: {formato_moneda(presupuesto_mes)} | {color} Restante: {formato_moneda(restante)}")
     return "\n".join(lineas)
