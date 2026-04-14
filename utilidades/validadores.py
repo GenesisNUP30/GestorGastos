@@ -23,13 +23,20 @@ def validar_categoria(categoria: str, validas: list):
     return None, f"Categoría no válida. Opciones: {', '.join(validas)}"
 
 def validar_fecha(fecha_str: str):
-    """Valida formato YYYY-MM-DD y que no sea futura."""
-    if not re.match(r"^\d{4}-\d{2}-\d{2}$", fecha_str):
-        return None, "Formato inválido. Usa YYYY-MM-DD."
+    """Valida formato DD-MM-YYYY (o DD/MM/YYYY) y que no sea futura. Devuelve YYYY-MM-DD para almacenamiento."""
+    if not fecha_str:
+        return None, "La fecha no puede estar vacía."
+
+    # Normaliza separadores a guion para evitar errores si el usuario usa barras
+    fecha_str = fecha_str.replace("/", "-")
+
     try:
-        fecha = datetime.strptime(fecha_str, "%Y-%m-%d")
-        if fecha.date() > datetime.now().date():
-            return None, "La fecha no puede ser futura."
-        return fecha_str, None
+        fecha_obj = datetime.strptime(fecha_str, "%d-%m-%Y")
     except ValueError:
-        return None, "Fecha no válida (ej: 30/02/2025 es inválido)."
+        return None, "Formato inválido. Usa DD-MM-YYYY (ej: 15-04-2024)."
+
+    if fecha_obj.date() > datetime.now().date():
+        return None, "La fecha no puede ser futura."
+
+    # Convierte al formato interno YYYY-MM-DD para que los filtros por mes funcionen correctamente
+    return fecha_obj.strftime("%Y-%m-%d"), None

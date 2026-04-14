@@ -2,12 +2,16 @@
 formateadores.py
 Utilidades para formatear monedas, fechas y textos de salida.
 """
+from datetime import datetime
+
 def formato_moneda(valor: float) -> str:
     """Formatea números como moneda europea."""
     return f"{valor:,.2f} €".replace(",", "X").replace(".", ",").replace("X", ".")
 
-def formato_fecha(fecha_str: str) -> str:
-    """Convierte YYYY-MM-DD a DD/MM/YYYY."""
-    from datetime import datetime
-    dt = datetime.strptime(fecha_str, "%Y-%m-%d")
-    return dt.strftime("%d/%m/%Y")
+def formato_fecha_display(fecha_iso: str) -> str:
+    """Convierte YYYY-MM-DD (interno) a DD-MM-YYYY (visual)."""
+    try:
+        fecha_obj = datetime.strptime(fecha_iso, "%Y-%m-%d")
+        return fecha_obj.strftime("%d-%m-%Y")
+    except ValueError:
+        return fecha_iso
