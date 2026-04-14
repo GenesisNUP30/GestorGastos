@@ -1,6 +1,6 @@
 """
 console_menu.py
-Interfaz principal CRUD. Menú reordenado, selección de mes/año y presupuestos persistentes.
+Interfaz CRUD. Menú reordenado, alertas de presupuesto en tiempo real y ventanas con estado financiero.
 """
 import sys
 import os
@@ -9,25 +9,24 @@ from datetime import datetime
 from colorama import init, Fore, Style
 init(autoreset=True)
 
-# Ruta raíz del proyecto para imports seguros
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from config import EXPENSES_FILE, CONFIG_FILE, DEFAULT_CATEGORIES, REPORTS_DIR
 from data.storage import cargar_gastos, exportar_txt, cargar_configuracion, guardar_configuracion
 from utils.validators import validar_monto, validar_categoria, validar_fecha
+from utils.formatters import formato_moneda
 from core.expense_manager import (
     agregar_gasto, editar_gasto, eliminar_gasto,
     resumen_por_categoria, filtrar_por_mes, generar_reporte
 )
 from ui.visualizer import generar_grafico
-from ui.tabla_window import mostrar_ventana_tabla
+from ui.table_window import mostrar_ventana_tabla
 
-def limpiar_pantalla():
-    os.system('cls' if os.name == 'nt' else 'clear')
+def limpiar_pantalla(): os.system('cls' if os.name == 'nt' else 'clear')
 
 def mostrar_menu():
     print(f"\n{Fore.CYAN}╔{'═'*50}╗")
-    print(f"{Fore.CYAN}║ {Fore.YELLOW}💶 GESTOR DE GASTOS ESTUDIANTIL 💶{Fore.CYAN}{' '*(10)}║")
+    print(f"{Fore.CYAN}║ {Fore.YELLOW}💶 GESTOR DE GASTOS ESTUDIANTIL (CRUD) 💶{Fore.CYAN}{' '*(10)}║")
     print(f"{Fore.CYAN}╠{'═'*50}╣")
     print(f"{Fore.WHITE}║  1. 📋 Ver lista completa               {Fore.CYAN}║")
     print(f"{Fore.WHITE}║  2. ➕ Registrar nuevo gasto            {Fore.CYAN}║")
@@ -35,7 +34,7 @@ def mostrar_menu():
     print(f"{Fore.WHITE}║  4. 🗑️ Eliminar gasto                  {Fore.CYAN}║")
     print(f"{Fore.WHITE}║  5. 📊 Resumen + Gráfico visual         {Fore.CYAN}║")
     print(f"{Fore.WHITE}║  6. 💾 Exportar resumen a TXT           {Fore.CYAN}║")
-    print(f"{Fore.WHITE}║  7. 📅 Filtrar por mes/año          {Fore.CYAN}║")
+    print(f"{Fore.WHITE}║  7. 📅 Filtrar por mes/año              {Fore.CYAN}║")
     print(f"{Fore.WHITE}║  8. 🚪 Salir                            {Fore.CYAN}║")
     print(f"{Fore.CYAN}╚{'═'*50}╝")
 
@@ -48,43 +47,63 @@ def solicitar_mes() -> str:
         return solicitar_mes()
     return mes
 
-def gestionar_presupuesto(mes: str) -> float:
+def obtener_presupuesto(mes: str) -> float | None:
     config = cargar_configuracion(CONFIG_FILE)
     presupuestos = config.get("presupuestos", {})
-    actual = presupuestos.get(mes)
-    
-    if actual is not None:
-        print(f"{Fore.CYAN}📌 Presupuesto ya configurado para {mes}: {actual:.2f}€{Style.RESET_ALL}")
-        cambiar = input(f"{Fore.WHITE}¿Deseas modificarlo? (s/n): {Fore.RESET}").strip().lower()
-        if cambiar != "s": return float(actual)
-    
+    if mes in presupuestos: return float(presupuestos[mes])
     while True:
-        val = input(f"{Fore.WHITE}💰 Introduce presupuesto para {mes}: {Fore.RESET}").strip()
+        val = input(f"{Fore.WHITE}💰 Sin presupuesto para {mes}. Introduce uno (€) o [Enter] para ilimitado: {Fore.RESET}").strip()
+        if not val: return None
         try:
-            presupuesto = float(val.replace(",", "."))
-            if presupuesto <= 0: raise ValueError
-            presupuestos[mes] = presupuesto
+            pres = float(val.replace(",", "."))
+            if pres <= 0: raise ValueError
+            presupuestos[mes] = pres
             config["presupuestos"] = presupuestos
             guardar_configuracion(CONFIG_FILE, config)
             print(f"{Fore.GREEN}✅ Presupuesto guardado para {mes}.{Style.RESET_ALL}")
-            return presupuesto
+            return pres
         except ValueError:
-            print(f"{Fore.RED}❌ Debe ser un número mayor a 0.{Style.RESET_ALL}")
+            print(f"{Fore.RED}❌ Número inválido o <= 0.{Style.RESET_ALL}")
+
+def mostrar_alerta_presupuesto(mes: str):
+    """Calcula y muestra el estado financiero del mes. Nunca bloquea."""
+    config = cargar_configuracion(CONFIG_FILE)
+    presupuesto = config.get("presupuestos", {}).get(mes)
+    gastos = cargar_gastos(EXPENSES_FILE)
+    total = sum(g["monto"] for g in gastos if g["fecha"].startswith(mes))
+
+    if presupuesto is None:
+        msg = f"📊 Mes {mes}: Gastado {formato_moneda(total)} | Presupuesto: Ilimitado"
+        color = Fore.CYAN
+    else:
+        dif = presupuesto - total
+        if dif >= 0:
+            msg = f"✅ Mes {mes}: Presupuesto {formato_moneda(presupuesto)} | Gastado {formato_moneda(total)} | Restante {formato_moneda(dif)}"
+            color = Fore.GREEN
+        else:
+            msg = f"🚨 ALERTA Mes {mes}: Presupuesto {formato_moneda(presupuesto)} | Gastado {formato_moneda(total)} | Déficit {formato_moneda(abs(dif))}"
+            color = Fore.RED
+    print(f"{color}{msg}{Style.RESET_ALL}")
 
 def solicitar_id_valido(gastos: list) -> int:
     while True:
         try:
-            val = int(input(f"{Fore.WHITE}🔢 Introduce el ID del gasto: {Fore.RESET}").strip())
-            if any(g["id"] == val for g in gastos):
-                return val
-            print(f"{Fore.RED}⚠️ ID no encontrado. Verifica la lista.{Style.RESET_ALL}")
+            val = int(input(f"{Fore.WHITE}🔢 ID del gasto: {Fore.RESET}").strip())
+            if any(g["id"] == val for g in gastos): return val
+            print(f"{Fore.RED}⚠️ ID no encontrado.{Style.RESET_ALL}")
         except ValueError:
-            print(f"{Fore.RED}❌ Debe ser un número entero.{Style.RESET_ALL}")
+            print(f"{Fore.RED}❌ Introduce un número entero.{Style.RESET_ALL}")
 
 def ejecutar_opcion(opcion: str):
+    mes_actual = datetime.now().strftime("%Y-%m")
+
     if opcion == "1":
+        mostrar_alerta_presupuesto(mes_actual)
         gastos = cargar_gastos(EXPENSES_FILE)
-        mostrar_ventana_tabla(gastos)
+        config = cargar_configuracion(CONFIG_FILE)
+        pres = config.get("presupuestos", {}).get(mes_actual)
+        total = sum(g["monto"] for g in gastos if g["fecha"].startswith(mes_actual))
+        mostrar_ventana_tabla(gastos, presupuesto=pres, total_gastado=total)
         input(f"\n{Fore.YELLOW}Cierra la ventana y presiona Enter...")
 
     elif opcion == "2":
@@ -105,67 +124,50 @@ def ejecutar_opcion(opcion: str):
             else: break
         ok, msg = agregar_gasto(EXPENSES_FILE, monto, cat, desc, fecha)
         print(f"{Fore.GREEN if ok else Fore.RED}{msg}{Style.RESET_ALL}")
-        input(f"{Fore.YELLOW}Presiona Enter para continuar...")
+        mostrar_alerta_presupuesto(fecha[:7])  # Alerta del mes del gasto
+        input(f"{Fore.YELLOW}Presiona Enter...")
 
     elif opcion == "3":
         gastos = cargar_gastos(EXPENSES_FILE)
-        if not gastos:
-            print(f"{Fore.YELLOW}📭 No hay gastos para editar.{Style.RESET_ALL}")
-            input(f"{Fore.YELLOW}Presiona Enter..."); return
+        if not gastos: print(f"{Fore.YELLOW}📭 No hay gastos.{Style.RESET_ALL}"); input(); return
         mostrar_ventana_tabla(gastos)
         id_gasto = solicitar_id_valido(gastos)
-        print(f"\n{Fore.CYAN}¿Qué campo deseas modificar?")
         print(f"{Fore.WHITE}1. 💰 Monto | 2. 📂 Categoría | 3. 📝 Descripción | 4. 📅 Fecha")
         campo_map = {"1": "monto", "2": "categoria", "3": "descripcion", "4": "fecha"}
         while True:
-            op = input(f"{Fore.WHITE}👉 Elige opción (1-4): {Fore.RESET}").strip()
+            op = input(f"{Fore.WHITE}👉 Elige (1-4): {Fore.RESET}").strip()
             if op in campo_map: break
-            print(f"{Fore.RED}⚠️ Opción no válida.{Style.RESET_ALL}")
-        
+            print(f"{Fore.RED}⚠️ Opción inválida.{Style.RESET_ALL}")
         campo = campo_map[op]
         if campo == "monto":
-            while True:
-                val, err = validar_monto(input("💰 Nuevo monto: ").strip())
-                if err: print(f"{Fore.RED}❌ {err}")
-                else: break
+            while True: val, err = validar_monto(input("💰 Nuevo monto: ").strip()); break if not err else print(err)
         elif campo == "categoria":
-            while True:
-                val, err = validar_categoria(input(f"📂 Nueva categoría: ").strip(), DEFAULT_CATEGORIES)
-                if err: print(f"{Fore.RED}❌ {err}")
-                else: break
+            while True: val, err = validar_categoria(input("📂 Nueva categoría: ").strip(), DEFAULT_CATEGORIES); break if not err else print(err)
         elif campo == "fecha":
-            while True:
-                val, err = validar_fecha(input("📅 Nueva fecha (YYYY-MM-DD): ").strip())
-                if err: print(f"{Fore.RED}❌ {err}")
-                else: break
-        else:
-            val = input("📝 Nueva descripción: ").strip()
-            
+            while True: val, err = validar_fecha(input("📅 Nueva fecha (YYYY-MM-DD): ").strip()); break if not err else print(err)
+        else: val = input("📝 Nueva descripción: ").strip()
         ok, msg = editar_gasto(EXPENSES_FILE, id_gasto, campo, val)
         print(f"{Fore.GREEN if ok else Fore.RED}{msg}{Style.RESET_ALL}")
-        input(f"{Fore.YELLOW}Presiona Enter...")
+        mostrar_alerta_presupuesto(mes_actual)
+        input(); 
 
     elif opcion == "4":
         gastos = cargar_gastos(EXPENSES_FILE)
-        if not gastos:
-            print(f"{Fore.YELLOW}📭 No hay gastos para eliminar.{Style.RESET_ALL}")
-            input(f"{Fore.YELLOW}Presiona Enter..."); return
+        if not gastos: print(f"{Fore.YELLOW}📭 No hay gastos.{Style.RESET_ALL}"); input(); return
         mostrar_ventana_tabla(gastos)
         id_gasto = solicitar_id_valido(gastos)
         while True:
-            conf = input(f"{Fore.RED}⚠️ ¿Estás seguro de eliminar el gasto #{id_gasto}? (s/n): {Fore.RESET}").strip().lower()
+            conf = input(f"{Fore.RED}⚠️ ¿Eliminar #{id_gasto}? (s/n): {Fore.RESET}").strip().lower()
             if conf in ("s", "n"): break
-            print(f"{Fore.RED}⚠️ Responde 's' o 'n'.{Style.RESET_ALL}")
         if conf == "s":
             ok, msg = eliminar_gasto(EXPENSES_FILE, id_gasto)
             print(f"{Fore.GREEN if ok else Fore.RED}{msg}{Style.RESET_ALL}")
-        else:
-            print(f"{Fore.CYAN}✅ Operación cancelada.{Style.RESET_ALL}")
-        input(f"\n{Fore.YELLOW}Presiona Enter...")
+        mostrar_alerta_presupuesto(mes_actual)
+        input(); 
 
     elif opcion in ("5", "6", "7"):
         mes = solicitar_mes()
-        presupuesto = gestionar_presupuesto(mes)
+        presupuesto = obtener_presupuesto(mes)
         gastos_mes = filtrar_por_mes(cargar_gastos(EXPENSES_FILE), mes)
         resumen = resumen_por_categoria(gastos_mes)
         total = sum(resumen.values())
@@ -180,7 +182,7 @@ def ejecutar_opcion(opcion: str):
             if exportar_txt(ruta, reporte): print(f"{Fore.GREEN}✅ Exportado a: {ruta}")
         else:
             print(f"\n{Fore.WHITE}📋 Gastos registrados en {mes}:")
-            mostrar_ventana_tabla(gastos_mes)
+            mostrar_ventana_tabla(gastos_mes, presupuesto=presupuesto, total_gastado=total)
         input(f"\n{Fore.YELLOW}Presiona Enter...")
 
     elif opcion == "8":
