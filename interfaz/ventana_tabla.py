@@ -4,6 +4,7 @@ Abre una ventana interactiva con Tkinter para visualizar gastos + estado financi
 """
 import tkinter as tk
 from tkinter import ttk
+from utilidades.formateadores import formato_fecha_display
 
 def mostrar_ventana_tabla(gastos: list, presupuesto: float = None, total_gastado: float = 0.0):
     """
@@ -16,11 +17,10 @@ def mostrar_ventana_tabla(gastos: list, presupuesto: float = None, total_gastado
 
     root = tk.Tk()
     root.title("💶 Gestor de Gastos - Listado Completo")
-    root.geometry("850x420")
+    root.geometry("900x480")
     root.resizable(False, False)
     root.iconify()  # Parpadea en barra de tareas para llamar atención
     
-    # 🟢 Frame de Estado Financiero (si hay presupuesto configurado)
     if presupuesto is not None:
         dif = presupuesto - total_gastado
         status_txt = f"Presupuesto: {presupuesto:,.2f}€ | Gastado: {total_gastado:,.2f}€ | {'Restante' if dif>=0 else 'Déficit'}: {abs(dif):,.2f}€"
@@ -59,7 +59,7 @@ def mostrar_ventana_tabla(gastos: list, presupuesto: float = None, total_gastado
     for g in gastos:
         tree.insert("", tk.END, values=(
             g["id"], 
-            g["fecha"], 
+            formato_fecha_display(g["fecha"]),
             g["categoria"].capitalize(), 
             f"{g['monto']:.2f}", 
             g["descripcion"]
