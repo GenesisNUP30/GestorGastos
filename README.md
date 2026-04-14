@@ -21,8 +21,9 @@ El proyecto utiliza **dos librerías externas instaladas mediante `pip`**, con u
 
 ## ▶️ Instrucciones para Ejecutar la Aplicación
 Una vez instaladas las dependencias, inicia el programa con:
+
 ```bash
-python main.py
+python principal.py
 ```
 La aplicación arrancará en modo interactivo. Para finalizar la ejecución de forma segura, selecciona la opción 9. 🚪 Salir desde el menú o pulsa Ctrl+C.
 
