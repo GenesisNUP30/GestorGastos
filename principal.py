@@ -20,7 +20,7 @@ from interfaz.menu_consola import mostrar_menu, ejecutar_opcion, limpiar_pantall
 
 def main():
     limpiar_pantalla()
-    print(f"{Fore.CYAN}🚀 Iniciando Gestor de Gastos Estudiantil v2.2...{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}Iniciando aplicación de Gestor de Gastos {Style.RESET_ALL}")
     
     # Formato interno para lógica y almacenamiento (YYYY-MM)
     mes_actual_iso = datetime.now().strftime("%Y-%m")
@@ -55,8 +55,6 @@ def main():
                 print(f"{Fore.RED}❌ Introduce un número válido mayor a 0.{Style.RESET_ALL}")
     else:
         print(f"{Fore.CYAN}📌 Presupuesto cargado para {mes_actual_visual}: {presupuesto_actual:.2f}€{Style.RESET_ALL}")
-
-    print(f"{Fore.YELLOW}💡 Tip: Usa las opciones 5, 6 o 7 para ver resúmenes y gráficos por mes.{Fore.RESET}\n")
 
     try:
         while True:

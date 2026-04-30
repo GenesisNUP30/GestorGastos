@@ -30,22 +30,22 @@ def limpiar_pantalla():
 
 def mostrar_menu():
     print(f"\n{Fore.CYAN}╔{'═' * 50}╗")
-    print(f"{Fore.CYAN}║ {Fore.YELLOW}💶 GESTOR DE GASTOS ESTUDIANTIL (CRUD) 💶{Fore.CYAN}{' ' * 10}║")
+    print(f"{Fore.CYAN}║ {Fore.YELLOW}💶 GESTOR DE GASTOS ESTUDIANTIL (CRUD) {Fore.CYAN}{' ' * 10}║")
     print(f"{Fore.CYAN}╠{'═' * 50}╣")
-    print(f"{Fore.WHITE}║  1. 📋 Ver lista completa               {Fore.CYAN}║")
-    print(f"{Fore.WHITE}║  2. ➕ Registrar nuevo gasto            {Fore.CYAN}║")
-    print(f"{Fore.WHITE}║  3. ✏️ Editar gasto existente           {Fore.CYAN}║")
-    print(f"{Fore.WHITE}║  4. 🗑️ Eliminar gasto                  {Fore.CYAN}║")
-    print(f"{Fore.WHITE}║  5. 📊 Resumen + Gráfico visual         {Fore.CYAN}║")
-    print(f"{Fore.WHITE}║  6. 💾 Exportar resumen a TXT           {Fore.CYAN}║")
-    print(f"{Fore.WHITE}║  7. 📅 Filtrar por mes/año              {Fore.CYAN}║")
-    print(f"{Fore.WHITE}║  8. 💰 Configurar/Cambiar presupuesto   {Fore.CYAN}║")
-    print(f"{Fore.WHITE}║  9. 🚪 Salir                            {Fore.CYAN}║")
+    print(f"{Fore.WHITE}║  1. 📋 Ver lista completa                        {Fore.CYAN}║")
+    print(f"{Fore.WHITE}║  2. ➕ Registrar nuevo gasto                     {Fore.CYAN}║")
+    print(f"{Fore.WHITE}║  3. ✏️  Editar gasto existente                    {Fore.CYAN}║")
+    print(f"{Fore.WHITE}║  4. 🗑️  Eliminar gasto                            {Fore.CYAN}║")
+    print(f"{Fore.WHITE}║  5. 📊 Resumen + Gráfico visual                  {Fore.CYAN}║")
+    print(f"{Fore.WHITE}║  6. 💾 Exportar resumen a TXT                    {Fore.CYAN}║")
+    print(f"{Fore.WHITE}║  7. 📅 Filtrar por mes/año                       {Fore.CYAN}║")
+    print(f"{Fore.WHITE}║  8. 💰 Configurar/Cambiar presupuesto            {Fore.CYAN}║")
+    print(f"{Fore.WHITE}║  9. 🚪 Salir                                     {Fore.CYAN}║")
     print(f"{Fore.CYAN}╚{'═' * 50}╝")
 
 
 def solicitar_mes() -> str:
-    """Pide MM-YYYY al usuario y devuelve YYYY-MM para lógica interna."""
+    """Pide la fecha en formato MM-YYYY al usuario para ser más intuitivo y devuelve YYYY-MM para lógica interna."""
     mes_default_visual = datetime.now().strftime("%m-%Y")
     mes_default_iso = datetime.now().strftime("%Y-%m")
 
@@ -120,7 +120,7 @@ def cambiar_presupuesto():
 
 
 def mostrar_alerta_presupuesto(mes_iso: str):
-    """Calcula y muestra el estado financiero del mes. Nunca bloquea."""
+    """Calcula y muestra el estado financiero del mes."""
     config = cargar_configuracion(CONFIG_FILE)
     presupuesto = config.get("presupuestos", {}).get(mes_iso)
     gastos = cargar_gastos(EXPENSES_FILE)
