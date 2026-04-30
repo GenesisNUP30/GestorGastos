@@ -31,12 +31,12 @@ La aplicación arrancará en modo interactivo. Para finalizar la ejecución de f
 El gestor organiza los gastos por mes y año, guardando toda la información de forma persistente en archivos JSON locales. Al iniciar, solicita o carga automáticamente el presupuesto configurado para el mes actual, evitando peticiones repetitivas en futuras sesiones.
 
 ### 🔄 Flujo de Uso y Opciones
-1. 📋 Ver lista completa: Abre una ventana interactiva con tkinter que muestra todos los registros en formato tabla. Incluye scroll, ordenación y un indicador superior con el estado financiero del mes actual (presupuesto, gastado y restante/déficit).
-2. ➕ Registrar nuevo gasto: Solicita monto, categoría, descripción y fecha. Valida cada entrada en tiempo real. Tras guardarlo, muestra automáticamente una alerta con el estado del presupuesto.
-3. ✏️ Editar gasto existente: Muestra la tabla de gastos, pide el ID único y permite modificar monto, categoría, fecha o descripción. Aplica las mismas validaciones y actualiza el estado financiero.
-4. 🗑️ Eliminar gasto: Muestra la tabla, solicita el ID y pide confirmación explícita (s/n) antes de borrar. Tras la eliminación, recalcula y muestra el nuevo margen presupuestario.
-5. 📊 Resumen + Gráfico visual: Genera un informe mensual con barras ASCII y abre automáticamente un gráfico de barras con matplotlib para visualizar la distribución por categoría.
-6. 💾 Exportar resumen a TXT: Guarda el informe mensual en un archivo .txt dentro de la carpeta reportes/ para su consulta offline o impresión.
+1. 📋 Ver lista completa: Abre una ventana interactiva con tkinter que muestra todos los registros en formato tabla. Incluye ordenación y un indicador superior con el estado financiero del mes actual (presupuesto, gastado y restante o déficit).
+2. ➕ Registrar nuevo gasto: Solicita cantidad del gasto, categoría, descripción y fecha. Valida cada entrada y tras guardarlo, muestra automáticamente una alerta con el estado del presupuesto.
+3. ✏️ Editar gasto existente: Muestra la tabla de gastos, pide el ID y permite modificar una cantidad de gasto, categoría, fecha o descripción. Aplica las mismas validaciones y actualiza el estado financiero.
+4. 🗑️ Eliminar gasto: Muestra la tabla, solicita el ID y pide confirmación (s/n) antes de borrar. Tras la eliminación, recalcula los gastos y muestra la cantidad del presupuesto y si queda margen o si hay déficit.
+5. 📊 Resumen + Gráfico visual: Genera un informe mensual y abre automáticamente un gráfico de barras con matplotlib para visualizar la distribución por categoría.
+6. 💾 Exportar resumen a TXT: Guarda el informe mensual en un archivo .txt dentro de la carpeta reportes/ que se puede consultar o imprimir.
 7. 📅 Filtrar por mes/año: Permite consultar gastos de cualquier mes histórico o futuro introduciendo el formato YYYY-MM. Carga o solicita el presupuesto asociado a ese periodo.
-8. 💰 Configurar/Cambiar presupuesto: Opción dedicada para actualizar el límite mensual de cualquier mes sin necesidad de editar archivos manualmente.
-9. 🚪 Salir: Cierra la aplicación de forma controlada.
+8. 💰 Configurar/Cambiar presupuesto: Permite actualizar el límite mensual de presupuesto de cualquier mes.
+9. 🚪 Salir: Cierra la aplicación.
