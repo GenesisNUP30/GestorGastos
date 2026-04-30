@@ -1,6 +1,7 @@
 """
 menu_consola.py
-Interfaz CRUD. Menú reordenado, alertas de presupuesto en tiempo real y opción para modificarlo.
+Capa de interfaz de usuario. Gestiona el menú interactivo, el flujo de opciones CRUD,
+la validación de entradas en tiempo real y la orquestación con las capas de lógica y datos.
 """
 import sys
 import os
@@ -29,6 +30,7 @@ def limpiar_pantalla():
 
 
 def mostrar_menu():
+    """Imprime la estructura visual del menú principal con opciones numeradas."""
     print(f"\n{Fore.CYAN}╔{'═' * 50}╗")
     print(f"{Fore.CYAN}║ {Fore.YELLOW}💶 GESTOR DE GASTOS ESTUDIANTIL (CRUD) {Fore.CYAN}{' ' * 10}║")
     print(f"{Fore.CYAN}╠{'═' * 50}╣")
@@ -63,6 +65,7 @@ def solicitar_mes() -> str:
 
 
 def obtener_presupuesto(mes: str) -> float | None:
+    """Carga presupuesto existente o solicita uno nuevo si no está configurado."""
     config = cargar_configuracion(CONFIG_FILE)
     presupuestos = config.get("presupuestos", {})
     if mes in presupuestos:
@@ -120,7 +123,7 @@ def cambiar_presupuesto():
 
 
 def mostrar_alerta_presupuesto(mes_iso: str):
-    """Calcula y muestra el estado financiero del mes."""
+    """Calcula y muestra en consola el balance del mes (restante o déficit)."""
     config = cargar_configuracion(CONFIG_FILE)
     presupuesto = config.get("presupuestos", {}).get(mes_iso)
     gastos = cargar_gastos(EXPENSES_FILE)
@@ -148,6 +151,7 @@ def mostrar_alerta_presupuesto(mes_iso: str):
 
 
 def solicitar_id_valido(gastos: list) -> int:
+    """Solicita y valida que el ID introducido exista en la lista actual."""
     while True:
         try:
             val = int(input(f"{Fore.WHITE}🔢 ID del gasto: {Fore.RESET}").strip())
@@ -159,8 +163,10 @@ def solicitar_id_valido(gastos: list) -> int:
 
 
 def ejecutar_opcion(opcion: str):
+    """Maneja la ejecución de cada opción del menú según la selección del usuario."""
     mes_actual_iso = datetime.now().strftime("%Y-%m")
 
+ # --- Opción 1: Listado completo ---
     if opcion == "1":
         mostrar_alerta_presupuesto(mes_actual_iso)
         gastos = cargar_gastos(EXPENSES_FILE)
@@ -170,6 +176,7 @@ def ejecutar_opcion(opcion: str):
         mostrar_ventana_tabla(gastos, presupuesto=pres, total_gastado=total)
         input(f"\n{Fore.YELLOW}Cierra la ventana y presiona Enter...")
 
+# --- Opción 2: Crear gasto ---
     elif opcion == "2":
         while True:
             monto, err = validar_monto(input("💰 Cantidad (ej: 15.50): ").strip())
@@ -201,6 +208,7 @@ def ejecutar_opcion(opcion: str):
         mostrar_alerta_presupuesto(fecha_iso[:7])
         input(f"{Fore.YELLOW}Presiona Enter...")
 
+# --- Opción 3: Editar gasto ---
     elif opcion == "3":
         gastos = cargar_gastos(EXPENSES_FILE)
         if not gastos:
@@ -248,6 +256,7 @@ def ejecutar_opcion(opcion: str):
         mostrar_alerta_presupuesto(mes_actual_iso)
         input()
 
+# --- Opción 4: Eliminar gasto ---
     elif opcion == "4":
         gastos = cargar_gastos(EXPENSES_FILE)
         if not gastos:
@@ -266,6 +275,7 @@ def ejecutar_opcion(opcion: str):
         mostrar_alerta_presupuesto(mes_actual_iso)
         input()
 
+# --- Opciones 5, 6, 7: Informes y gráficos ---
     elif opcion in ("5", "6", "7"):
         mes_iso = solicitar_mes()
         presupuesto = obtener_presupuesto(mes_iso)
@@ -288,10 +298,12 @@ def ejecutar_opcion(opcion: str):
             mostrar_ventana_tabla(gastos_mes, presupuesto=presupuesto, total_gastado=total)
         input(f"\n{Fore.YELLOW}Presiona Enter...")
 
+# --- Opción 8: Configurar presupuesto ---
     elif opcion == "8":
         cambiar_presupuesto()
         input(f"{Fore.YELLOW}Presiona Enter para continuar...")
 
+# --- Opción 9: Salir ---
     elif opcion == "9":
         print(f"{Fore.CYAN}👋 ¡Hasta la próxima! Gestiona tu economía con inteligencia.")
         sys.exit(0)

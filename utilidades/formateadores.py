@@ -5,7 +5,7 @@ Utilidades para formatear monedas, fechas y textos de salida.
 from datetime import datetime
 
 def formato_moneda(valor: float) -> str:
-    """Formatea números como moneda europea."""
+    """Convierte número a moneda con separadores de miles y decimales."""
     return f"{valor:,.2f} €".replace(",", "X").replace(".", ",").replace("X", ".")
 
 def formato_fecha_display(fecha_iso: str) -> str:

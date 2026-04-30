@@ -6,7 +6,7 @@ import re
 from datetime import datetime
 
 def validar_monto(monto_str: str):
-    """Valida que el monto sea un número positivo."""
+    """Valida que la entrada de la cantidad del gasto sea un número positivo."""
     try:
         monto = float(monto_str.replace(",", "."))
         if monto <= 0:
@@ -16,7 +16,7 @@ def validar_monto(monto_str: str):
         return None, "Formato numérico inválido. Usa punto o coma para decimales."
 
 def validar_categoria(categoria: str, validas: list):
-    """Valida que la categoría exista en la lista permitida."""
+    """Valida que la categoría exista en la lista de opciones permitida."""
     categoria = categoria.lower().strip()
     if categoria in validas:
         return categoria, None
@@ -27,7 +27,7 @@ def validar_fecha(fecha_str: str):
     if not fecha_str:
         return None, "La fecha no puede estar vacía."
 
-    # Normaliza separadores a guion para evitar errores si el usuario usa barras
+    # Normaliza separadores para aceptar tanto barras como guiones
     fecha_str = fecha_str.replace("/", "-")
 
     try:

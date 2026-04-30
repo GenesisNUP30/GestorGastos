@@ -10,7 +10,7 @@ from colorama import init, Fore, Style
 
 init(autoreset=True)
 
-# Asegura que los paquetes internos se resuelven correctamente desde la raíz
+# Añade la raíz del proyecto al sys.path para garantizar la resolución de imports relativos
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from config import CONFIG_FILE
@@ -27,7 +27,7 @@ def main():
     # Formato visual para mensajes al usuario (MM/YYYY)
     mes_actual_visual = datetime.now().strftime("%m/%Y")
 
-    # Configuración inicial del presupuesto para el mes actual
+    # Carga configuración persistente y verifica si ya existe un presupuesto para este mes
     config = cargar_configuracion(CONFIG_FILE)
     presupuestos = config.get("presupuestos", {})
     presupuesto_actual = presupuestos.get(mes_actual_iso)
@@ -56,6 +56,7 @@ def main():
     else:
         print(f"{Fore.CYAN}📌 Presupuesto cargado para {mes_actual_visual}: {presupuesto_actual:.2f}€{Style.RESET_ALL}")
 
+    # Bucle principal de la aplicación con manejo seguro de interrupciones
     try:
         while True:
             mostrar_menu()

@@ -1,28 +1,31 @@
 """
 visualizador.py
-Generación de gráficos interactivos con Matplotlib. Muestra el gráfico en pantalla inmediatamente.
+Capa de visualización de datos. Utiliza Matplotlib para generar gráficos de barras
+interactivos que muestran la distribución de gastos por categoría, abriéndose en
+una ventana nativa del sistema para análisis detallado.
 """
 import matplotlib.pyplot as plt
 from colorama import Fore, Style
 
 def generar_grafico(resumen: dict):
     """
-    Genera y MUESTRA EN PANTALLA un gráfico de barras con la distribución de gastos.
-    La ventana se cierra al pulsar 'X' o al presionar Enter tras cerrarla.
+    Genera y muestra en pantalla un gráfico de barras con la distribución de gastos.
+    Bloquea la ejecución hasta que el usuario cierra la ventana.
     """
     if not resumen:
         print(f"{Fore.YELLOW}⚠️ No hay datos suficientes para generar el gráfico.{Style.RESET_ALL}")
         return
     
+    # Preparación de datos: extrae categorías, redondea montos y asigna colores distintivos
     categorias = list(resumen.keys())
     montos = [round(m, 2) for m in resumen.values()]  # Redondear para etiquetas limpias
     colores = plt.cm.Set3.colors[:len(categorias)]
 
-    # Crear figura con tamaño adecuado para presentación
+    # Configuración de la figura: tamaño y estilo base
     plt.figure(figsize=(10, 6))
     barras = plt.bar(categorias, montos, color=colores, edgecolor="black", linewidth=1.2)
     
-    # Títulos y etiquetas con estilo profesional
+    # Personalización de ejes, títulos y rejilla para legibilidad profesional
     plt.title("📊 Distribución de Gastos por Categoría", fontsize=16, fontweight="bold", pad=20)
     plt.xlabel("Categorías", fontsize=12, fontweight="semibold")
     plt.ylabel("Gasto (€)", fontsize=12, fontweight="semibold")
@@ -30,7 +33,7 @@ def generar_grafico(resumen: dict):
     plt.yticks(fontsize=10)
     plt.grid(axis="y", linestyle="--", alpha=0.5, linewidth=0.5)
     
-    # Añadir etiquetas de valor sobre cada barra
+    # Etiquetas de valor sobre cada barra para lectura directa de montos
     for b in barras:
         height = b.get_height()
         plt.annotate(f'{height:.2f}€', 
@@ -44,8 +47,8 @@ def generar_grafico(resumen: dict):
     # Ajustar layout para que no se corten las etiquetas
     plt.tight_layout()
     
-    # 🎯 MOSTRAR EN PANTALLA (bloqueante hasta cerrar la ventana)
+    # Mostrar gráfico en ventana interactiva (ejecución bloqueante hasta cierre)
     print(f"\n{Fore.CYAN}🔍 Se abrirá una ventana con el gráfico. Ciérrala para continuar...{Style.RESET_ALL}")
-    plt.show()  # ← ESTO MUESTRA EL GRÁFICO EN PANTALLA
+    plt.show()
     
     print(f"{Fore.GREEN}✅ Gráfico cerrado. Volviendo al menú principal...{Style.RESET_ALL}")

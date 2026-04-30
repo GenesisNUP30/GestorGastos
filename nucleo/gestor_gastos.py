@@ -1,6 +1,7 @@
 """
 gestor_gastos.py
-Lógica de negocio: CRUD completo, cálculo de resúmenes, filtrado temporal y reportes.
+Lógica de negocio: implementa las operaciones CRUD, filtrado por mes,
+cálculo de resúmenes y generación de informes de texto con indicadores visuales.
 """
 import os
 from datetime import datetime
@@ -8,6 +9,7 @@ from utilidades.formateadores import formato_moneda
 from datos.almacenamiento import cargar_gastos, guardar_gastos
 
 def agregar_gasto(ruta_archivo: str, monto: float, categoria: str, descripcion: str, fecha: str) -> tuple:
+    """Registra un nuevo gasto asignando un ID único y persistente."""
     gastos = cargar_gastos(ruta_archivo)
     # Genera ID único incluso si se han borrado registros intermedios
     nuevo_id = max((g["id"] for g in gastos), default=0) + 1
@@ -52,17 +54,20 @@ def eliminar_gasto(ruta_archivo: str, id_gasto: int) -> tuple:
     return False, "❌ Error al eliminar el gasto."
 
 def filtrar_por_mes(gastos: list, mes_año: str = None) -> list:
+    """Devuelve solo los gastos correspondientes a un mes/año específico (formato YYYY-MM)."""
     if not mes_año:
         mes_año = datetime.now().strftime("%Y-%m")
     return [g for g in gastos if g["fecha"].startswith(mes_año)]
 
 def resumen_por_categoria(gastos: list) -> dict:
+    """Calcula y retorna el total acumulado por cada categoría de gasto."""
     resumen = {}
     for g in gastos:
         resumen[g["categoria"]] = resumen.get(g["categoria"], 0.0) + g["monto"]
     return resumen
 
 def generar_reporte(resumen: dict, total: float, mes_año: str, presupuesto_mes: float = None) -> str:
+    """Genera un informe de texto, porcentajes y estado del presupuesto."""
     lineas = [f"📊 RESUMEN DE GASTOS - {mes_año}", "="*45]
     for cat, monto in sorted(resumen.items(), key=lambda x: x[1], reverse=True):
         porcentaje = (monto / total * 100) if total > 0 else 0
